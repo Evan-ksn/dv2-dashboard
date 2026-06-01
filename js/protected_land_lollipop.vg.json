@@ -1,0 +1,167 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+
+  "width": 800,
+  "height": 360,
+
+  "title": {
+    "text": "Protected Land Share Across Australian States",
+    "subtitle": "Protected land shown as a percentage of total land area",
+    "fontSize": 22,
+    "subtitleFontSize": 14,
+    "anchor": "start"
+  },
+
+  "data": {
+    "url": "../data/state_data.csv"
+  },
+
+  "transform": [
+    {
+      "filter": "datum.State != 'Other Territories'"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Land area (ha)'], /,/g, ''))",
+      "as": "LandArea"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Protected land area (ha)'], /,/g, ''))",
+      "as": "ProtectedArea"
+    },
+    {
+      "filter": "isValid(datum.LandArea) && isValid(datum.ProtectedArea)"
+    },
+    {
+      "calculate": "(datum.ProtectedArea / datum.LandArea) * 100",
+      "as": "ProtectedPercent"
+    }
+  ],
+
+  "layer": [
+    {
+      "mark": {
+        "type": "bar",
+        "height": 3,
+        "color": "#cfcfcf"
+      },
+      "encoding": {
+        "y": {
+          "field": "State",
+          "type": "nominal",
+          "title": "",
+          "sort": {
+            "field": "ProtectedPercent",
+            "order": "descending"
+          }
+        },
+        "x": {
+          "field": "ProtectedPercent",
+          "type": "quantitative",
+          "title": "Protected land (%)",
+          "scale": {
+            "domain": [0, 60]
+          },
+          "axis": {
+            "format": ".0f"
+          }
+        }
+      }
+    },
+
+    {
+      "mark": {
+        "type": "circle",
+        "size": 220,
+        "color": "#2E8B57",
+        "opacity": 0.95
+      },
+      "encoding": {
+        "y": {
+          "field": "State",
+          "type": "nominal",
+          "title": "",
+          "sort": {
+            "field": "ProtectedPercent",
+            "order": "descending"
+          }
+        },
+        "x": {
+          "field": "ProtectedPercent",
+          "type": "quantitative",
+          "title": "Protected land (%)",
+          "scale": {
+            "domain": [0, 60]
+          }
+        },
+        "tooltip": [
+          {
+            "field": "State",
+            "type": "nominal",
+            "title": "State"
+          },
+          {
+            "field": "ProtectedPercent",
+            "type": "quantitative",
+            "title": "Protected Land %",
+            "format": ".1f"
+          },
+          {
+            "field": "ProtectedArea",
+            "type": "quantitative",
+            "title": "Protected land area (ha)",
+            "format": ",.0f"
+          },
+          {
+            "field": "LandArea",
+            "type": "quantitative",
+            "title": "Total land area (ha)",
+            "format": ",.0f"
+          }
+        ]
+      }
+    },
+
+    {
+      "mark": {
+        "type": "text",
+        "align": "left",
+        "dx": 10,
+        "fontSize": 12,
+        "color": "#333"
+      },
+      "encoding": {
+        "y": {
+          "field": "State",
+          "type": "nominal",
+          "sort": {
+            "field": "ProtectedPercent",
+            "order": "descending"
+          }
+        },
+        "x": {
+          "field": "ProtectedPercent",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "ProtectedPercent",
+          "type": "quantitative",
+          "format": ".1f"
+        }
+      }
+    }
+  ],
+
+  "config": {
+    "background": "#ffffff",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "labelFontSize": 12,
+      "titleFontSize": 13,
+      "gridColor": "#eeeeee",
+      "domainColor": "#aaaaaa",
+      "tickColor": "#aaaaaa"
+    }
+  }
+}

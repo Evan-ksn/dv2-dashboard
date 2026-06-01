@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Opportunity and Affordability in Australia</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+
+  <link rel="stylesheet" href="Css/styles.css">
+</head>
+
+<body>
+  <main class="page">
+
+    <section class="hero">
+      <p class="eyebrow">Australian states compared through opportunity, affordability and liveability</p>
+      <h1>Where Does Australia Offer the Best Balance of Opportunity and Affordability?</h1>
+      <p class="hero-text">
+        This dashboard explores the trade-off between economic opportunity and everyday affordability across Australian states. 
+        It combines earnings, jobs, businesses, housing pressure, cost of living, population and protected land indicators to show 
+        that the “best” state depends on what people value most.
+      </p>
+    </section>
+
+    <section class="section-header">
+      <span>Section 01</span>
+      <h2>Australia’s State Divide Starts With Population</h2>
+      <p>Population distribution sets the spatial context before comparing opportunity and affordability.</p>
+    </section>
+
+    <section class="chart-section hero-chart">
+      <div class="chart-copy">
+        <h3>Population Map: Where Australians Live</h3>
+        <p>This choropleth map shows how population is distributed across Australian states and territories.</p>
+        <div class="insight-box">
+          <span>Insight</span>
+          Australia’s population is heavily concentrated in the eastern states, especially New South Wales, Victoria and Queensland.
+        </div>
+      </div>
+      <div id="population_map" class="vis"></div>
+      <p class="chart-note">
+        This matters because raw totals such as jobs, businesses and housing demand are strongly shaped by where people are concentrated.
+      </p>
+    </section>
+
+    <section class="section-header">
+      <span>Section 02</span>
+      <h2>Opportunity Is Not Just About Income</h2>
+      <p>Opportunity is explored through earnings, jobs, businesses and employment strength rather than one single measure.</p>
+    </section>
+
+    <section class="chart-section">
+      <div class="chart-copy">
+        <h3>Average Weekly Earnings</h3>
+        <p>Compares earning power across states and territories.</p>
+        <div class="insight-box">
+          <span>Insight</span>
+          Western Australia and ACT stand out with higher average weekly earnings.
+        </div>
+      </div>
+      <div id="earnings_dotplot" class="vis"></div>
+      <p class="chart-note">
+        Western Australia and the Australian Capital Territory record the highest weekly earnings, both sitting above the national average line. Tasmania and South Australia sit noticeably lower, highlighting the economic divide between resource-driven states and smaller regional economies.
+      </p>
+    </section>
+
+    <section class="chart-section">
+      <div class="chart-copy">
+        <h3>Jobs and Businesses</h3>
+        <p>Jobs and businesses are normalised per 1,000 people to make states easier to compare fairly.</p>
+        <div class="insight-box">
+          <span>Insight</span>
+          Per-capita metrics reveal opportunity beyond just population size.
+        </div>
+      </div>
+      <div id="jobs_businesses_bar" class="vis"></div>
+      <p class="chart-note">
+        When adjusted for population, the gap between states becomes smaller than expected. ACT and Northern Territory maintain strong job availability per capita, while business density remains relatively balanced across most states, suggesting opportunity is not purely linked to population size.
+      </p>
+    </section>
+
+    <section class="chart-section">
+      <div class="chart-copy">
+        <h3>Opportunity Profile Across States</h3>
+        <p>Each indicator is normalised, allowing states to be compared across different opportunity measures.</p>
+        <div class="insight-box">
+          <span>Insight</span>
+          No single state dominates every opportunity measure; strengths vary across earnings, jobs and business activity.
+        </div>
+      </div>
+      <div id="opportunity_heatmap" class="vis"></div>
+      <p class="chart-note">
+        The heatmap reveals that no single state dominates every opportunity indicator. Western Australia performs strongly in earnings and employment strength, while ACT scores highly in jobs and workforce participation. This reinforces that opportunity is multidimensional rather than defined by one metric.
+    </section>
+
+    <section class="section-header">
+      <span>Section 03</span>
+      <h2>Higher Opportunity Often Comes With Higher Pressure</h2>
+      <p>Affordability is tested through house prices, rent, mortgage pressure and cost of living.</p>
+    </section>
+
+    <section class="chart-section">
+      <div class="chart-copy">
+        <h3>Income vs House Prices</h3>
+        <p>Compares median income with median house prices across states.</p>
+        <div class="insight-box">
+          <span>Insight</span>
+          Higher income does not always translate into better housing affordability.
+        </div>
+      </div>
+      <div id="income_house_scatter" class="vis"></div>
+      <p class="chart-note">
+        The scatterplot highlights a clear affordability trade-off. States with stronger incomes, such as New South Wales and ACT, also experience some of the highest housing prices. Meanwhile, states with lower incomes often maintain lower housing pressure, showing that higher earnings do not always improve affordability.
+      </p>
+    </section>
+
+    <section class="chart-section">
+      <div class="chart-copy">
+        <h3>Cost of Living Pressure</h3>
+        <p>Index values above 100 indicate higher cost pressure than the Australian average.</p>
+        <div class="insight-box">
+          <span>Insight</span>
+          Some high-income states also carry stronger cost-of-living pressure.
+        </div>
+      </div>
+      <div id="cost_living_bar" class="vis"></div>
+      <p class="chart-note">
+        ACT and New South Wales sit well above the Australian average cost-of-living index, indicating stronger financial pressure despite higher incomes. Tasmania and South Australia remain below the national benchmark, suggesting comparatively lower everyday expenses.
+      </p>
+    </section>
+
+    <section class="chart-section">
+      <div class="chart-copy">
+        <h3>Rent vs Mortgage Pressure</h3>
+        <p>Monthly mortgage payments are converted into weekly values for direct comparison with weekly rent.</p>
+        <div class="insight-box">
+          <span>Insight</span>
+          A larger gap between dots indicates a bigger jump from renting to owning.
+        </div>
+      </div>
+      <div id="rent_mortgage_dumbbell" class="vis"></div>
+      <p class="chart-note">
+        Across every state, mortgage repayments exceed rental costs, although the size of the gap varies considerably. New South Wales and Northern Territory display the largest difference, suggesting a more difficult transition from renting into home ownership.
+      </p>
+    </section>
+
+    <section class="section-header">
+      <span>Section 04</span>
+      <h2>The Best State Depends on the Trade-off</h2>
+      <p>Opportunity and affordability do not always point to the same winner, so liveability is added as another layer.</p>
+    </section>
+
+    <section class="chart-section">
+      <div class="chart-copy">
+        <h3>Protected Land Share</h3>
+        <p>Compares protected land as a percentage of total land area.</p>
+        <div class="insight-box">
+          <span>Insight</span>
+          Environmental balance varies strongly across states.
+        </div>
+      </div>
+      <div id="protected_land_lollipop" class="vis"></div>
+      <p class="chart-note">
+        Environmental protection varies significantly across Australia. ACT and Tasmania dedicate the largest share of land to protected areas, while Queensland and New South Wales record the lowest proportions. This introduces a liveability perspective beyond purely economic measures.
+      </p>
+    </section>
+
+    <section class="chart-section">
+      <div class="chart-copy">
+        <h3>Opportunity vs Affordability</h3>
+        <p>Top-right states offer stronger opportunity with better affordability.</p>
+        <div class="insight-box">
+          <span>Insight</span>
+          The best balance is not always found in the biggest states.
+        </div>
+      </div>
+      <div id="balance_quadrant" class="vis"></div>
+      <p class="chart-note">
+        The quadrant plot combines opportunity and affordability into a single comparison. Western Australia appears closest to balancing both dimensions, while New South Wales achieves strong opportunity but weak affordability. The visual reinforces that economic success often comes with higher living pressure.
+      </p>
+    </section>
+
+    <section class="section-header">
+      <span>Section 05</span>
+      <h2>Choose Your Own Definition of “Best”</h2>
+      <p>The final map lets users re-rank Australia based on the factor they care about most.</p>
+    </section>
+
+    <section class="chart-section hero-chart">
+      <div class="chart-copy">
+        <h3>Look at Australia From Your Perspective</h3>
+        <p>
+          Use the dropdown to compare states by opportunity, affordability, lifestyle,
+          cost pressure or overall balance.
+        </p>
+        <div class="insight-box">
+          <span>Insight</span>
+          Different priorities produce different winners, showing that “best state” depends on what users value most.
+        </div>
+      </div>
+      <div id="perspective_map" class="vis"></div>
+      <p class="chart-note">
+        Now you have to decide which state is best for you. Do you prioritise opportunity, affordability or lifestyle? The choice is yours.
+      </p>
+    </section>
+
+    <section class="conclusion">
+      <h2>Conclusion</h2>
+      <p>
+        Australia’s states offer different trade-offs. Some provide stronger earnings and job opportunities,
+        while others offer lower housing pressure, lower living costs or stronger environmental balance.
+        The best choice depends on whether a person values opportunity, affordability or lifestyle most.
+      </p>
+      <p class="credits">
+        Created by Evan Kasania · FIT2179 Data Visualisation 2 · 2026
+      </p>
+    </section>
+
+  </main>
+
+  <script src="js/embed.js"></script>
+</body>
+</html>

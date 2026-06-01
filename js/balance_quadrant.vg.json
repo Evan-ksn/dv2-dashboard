@@ -1,0 +1,294 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 800,
+  "height": 430,
+
+  "title": {
+    "text": "Opportunity vs Affordability Balance",
+    "subtitle": "Top-right states offer stronger opportunity with better affordability",
+    "fontSize": 22,
+    "subtitleFontSize": 14,
+    "anchor": "start"
+  },
+
+  "data": {
+    "url": "../data/state_data.csv"
+  },
+
+  "transform": [
+    {
+      "filter": "datum.State != 'Other Territories' && datum.State != 'Australia'"
+    },
+
+    {
+      "calculate": "toNumber(replace(datum['Population'], /,/g, ''))",
+      "as": "PopulationClean"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Number of jobs'], /,/g, ''))",
+      "as": "JobsClean"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Total businesses'], /,/g, ''))",
+      "as": "BusinessesClean"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Average weekly earnings ($)'], /[$,]/g, ''))",
+      "as": "Earnings"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Median total income ($)'], /[$,]/g, ''))",
+      "as": "Income"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Median house price ($)'], /[$,]/g, ''))",
+      "as": "HousePrice"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Median weekly rent ($)'], /[$,]/g, ''))",
+      "as": "WeeklyRent"
+    },
+    {
+      "calculate": "toNumber(datum['Unemployment rate (%)'])",
+      "as": "Unemployment"
+    },
+    {
+      "calculate": "toNumber(datum['Cost of living index (Australia=100)'])",
+      "as": "CostIndex"
+    },
+
+    {
+      "calculate": "datum.JobsClean / datum.PopulationClean * 1000",
+      "as": "JobsPer1000"
+    },
+    {
+      "calculate": "datum.BusinessesClean / datum.PopulationClean * 1000",
+      "as": "BusinessesPer1000"
+    },
+    {
+      "calculate": "100 - datum.Unemployment",
+      "as": "EmploymentStrength"
+    },
+    {
+      "calculate": "datum.HousePrice / datum.Income",
+      "as": "HousePriceIncomeRatio"
+    },
+    {
+      "calculate": "datum.WeeklyRent / (datum.Income / 52)",
+      "as": "RentBurden"
+    },
+
+    {
+      "filter": "isValid(datum.Earnings) && isValid(datum.JobsPer1000) && isValid(datum.BusinessesPer1000) && isValid(datum.EmploymentStrength) && isValid(datum.HousePriceIncomeRatio) && isValid(datum.RentBurden) && isValid(datum.CostIndex)"
+    },
+
+    {
+      "joinaggregate": [
+        { "op": "min", "field": "Earnings", "as": "MinEarnings" },
+        { "op": "max", "field": "Earnings", "as": "MaxEarnings" },
+
+        { "op": "min", "field": "JobsPer1000", "as": "MinJobs" },
+        { "op": "max", "field": "JobsPer1000", "as": "MaxJobs" },
+
+        { "op": "min", "field": "BusinessesPer1000", "as": "MinBusinesses" },
+        { "op": "max", "field": "BusinessesPer1000", "as": "MaxBusinesses" },
+
+        { "op": "min", "field": "EmploymentStrength", "as": "MinEmployment" },
+        { "op": "max", "field": "EmploymentStrength", "as": "MaxEmployment" },
+
+        { "op": "min", "field": "HousePriceIncomeRatio", "as": "MinHouseRatio" },
+        { "op": "max", "field": "HousePriceIncomeRatio", "as": "MaxHouseRatio" },
+
+        { "op": "min", "field": "RentBurden", "as": "MinRentBurden" },
+        { "op": "max", "field": "RentBurden", "as": "MaxRentBurden" },
+
+        { "op": "min", "field": "CostIndex", "as": "MinCost" },
+        { "op": "max", "field": "CostIndex", "as": "MaxCost" }
+      ]
+    },
+
+    {
+      "calculate": "(datum.Earnings - datum.MinEarnings) / (datum.MaxEarnings - datum.MinEarnings) * 100",
+      "as": "EarningsScore"
+    },
+    {
+      "calculate": "(datum.JobsPer1000 - datum.MinJobs) / (datum.MaxJobs - datum.MinJobs) * 100",
+      "as": "JobsScore"
+    },
+    {
+      "calculate": "(datum.BusinessesPer1000 - datum.MinBusinesses) / (datum.MaxBusinesses - datum.MinBusinesses) * 100",
+      "as": "BusinessScore"
+    },
+    {
+      "calculate": "(datum.EmploymentStrength - datum.MinEmployment) / (datum.MaxEmployment - datum.MinEmployment) * 100",
+      "as": "EmploymentScore"
+    },
+
+    {
+      "calculate": "((datum.EarningsScore + datum.JobsScore + datum.BusinessScore + datum.EmploymentScore) / 4)",
+      "as": "OpportunityScore"
+    },
+
+    {
+      "calculate": "100 - ((datum.HousePriceIncomeRatio - datum.MinHouseRatio) / (datum.MaxHouseRatio - datum.MinHouseRatio) * 100)",
+      "as": "HouseAffordabilityScore"
+    },
+    {
+      "calculate": "100 - ((datum.RentBurden - datum.MinRentBurden) / (datum.MaxRentBurden - datum.MinRentBurden) * 100)",
+      "as": "RentAffordabilityScore"
+    },
+    {
+      "calculate": "100 - ((datum.CostIndex - datum.MinCost) / (datum.MaxCost - datum.MinCost) * 100)",
+      "as": "CostAffordabilityScore"
+    },
+
+    {
+      "calculate": "((datum.HouseAffordabilityScore + datum.RentAffordabilityScore + datum.CostAffordabilityScore) / 3)",
+      "as": "AffordabilityScore"
+    }
+  ],
+
+  "layer": [
+    {
+      "mark": {
+        "type": "rule",
+        "color": "#999999",
+        "strokeDash": [5, 5],
+        "strokeWidth": 1.2
+      },
+      "encoding": {
+        "x": {
+          "datum": 50,
+          "type": "quantitative",
+          "scale": { "domain": [0, 100] },
+          "title": "Affordability Score"
+        }
+      }
+    },
+
+    {
+      "mark": {
+        "type": "rule",
+        "color": "#999999",
+        "strokeDash": [5, 5],
+        "strokeWidth": 1.2
+      },
+      "encoding": {
+        "y": {
+          "datum": 50,
+          "type": "quantitative",
+          "scale": { "domain": [0, 100] },
+          "title": "Opportunity Score"
+        }
+      }
+    },
+
+    {
+      "mark": {
+        "type": "circle",
+        "size": 280,
+        "opacity": 0.85,
+        "stroke": "white",
+        "strokeWidth": 1.5
+      },
+      "encoding": {
+        "x": {
+          "field": "AffordabilityScore",
+          "type": "quantitative",
+          "scale": { "domain": [0, 100] },
+          "title": "Affordability Score"
+        },
+        "y": {
+          "field": "OpportunityScore",
+          "type": "quantitative",
+          "scale": { "domain": [0, 100] },
+          "title": "Opportunity Score"
+        },
+        "color": {
+          "field": "CostIndex",
+          "type": "quantitative",
+          "title": "Cost of living",
+          "scale": {
+            "scheme": "oranges"
+          }
+        },
+        "tooltip": [
+          { "field": "State", "type": "nominal", "title": "State" },
+          {
+            "field": "OpportunityScore",
+            "type": "quantitative",
+            "title": "Opportunity Score",
+            "format": ".1f"
+          },
+          {
+            "field": "AffordabilityScore",
+            "type": "quantitative",
+            "title": "Affordability Score",
+            "format": ".1f"
+          },
+          {
+            "field": "Earnings",
+            "type": "quantitative",
+            "title": "Average weekly earnings",
+            "format": "$,.0f"
+          },
+          {
+            "field": "HousePriceIncomeRatio",
+            "type": "quantitative",
+            "title": "House price-to-income ratio",
+            "format": ".1f"
+          },
+          {
+            "field": "CostIndex",
+            "type": "quantitative",
+            "title": "Cost of living index",
+            "format": ".1f"
+          }
+        ]
+      }
+    },
+
+    {
+      "mark": {
+        "type": "text",
+        "align": "left",
+        "dx": 8,
+        "dy": -6,
+        "fontSize": 11,
+        "color": "#333"
+      },
+      "encoding": {
+        "x": {
+          "field": "AffordabilityScore",
+          "type": "quantitative"
+        },
+        "y": {
+          "field": "OpportunityScore",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "State",
+          "type": "nominal"
+        }
+      }
+    }
+  ],
+
+  "config": {
+    "background": "#ffffff",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "labelFontSize": 12,
+      "titleFontSize": 13,
+      "gridColor": "#eeeeee",
+      "domainColor": "#aaaaaa",
+      "tickColor": "#aaaaaa"
+    },
+    "legend": {
+      "labelFontSize": 11,
+      "titleFontSize": 12
+    }
+  }
+}

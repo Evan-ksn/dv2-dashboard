@@ -1,0 +1,117 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 700,
+  "height": 360,
+
+  "title": {
+    "text": "Jobs and Businesses per 1,000 People",
+    "subtitle": "Normalised by population to compare states fairly",
+    "fontSize": 22,
+    "subtitleFontSize": 14,
+    "anchor": "start"
+  },
+
+  "data": {
+    "url": "../data/state_data.csv"
+  },
+
+  "transform": [
+    {
+      "filter": "datum.State != 'Other Territories'"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Population'], /,/g, ''))",
+      "as": "PopulationClean"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Number of jobs'], /,/g, ''))",
+      "as": "JobsClean"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Total businesses'], /,/g, ''))",
+      "as": "BusinessesClean"
+    },
+    {
+      "calculate": "datum.JobsClean / datum.PopulationClean * 1000",
+      "as": "Jobs per 1000"
+    },
+    {
+      "calculate": "datum.BusinessesClean / datum.PopulationClean * 1000",
+      "as": "Businesses per 1000"
+    },
+    {
+      "fold": ["Jobs per 1000", "Businesses per 1000"],
+      "as": ["Indicator", "Value"]
+    }
+  ],
+
+  "mark": {
+    "type": "bar",
+    "cornerRadiusEnd": 3
+  },
+
+  "encoding": {
+    "y": {
+      "field": "State",
+      "type": "nominal",
+      "title": "",
+      "sort": {
+        "field": "Value",
+        "op": "mean",
+        "order": "descending"
+      }
+    },
+
+    "x": {
+      "field": "Value",
+      "type": "quantitative",
+      "title": "Per 1,000 people"
+    },
+
+    "yOffset": {
+      "field": "Indicator"
+    },
+
+    "color": {
+      "field": "Indicator",
+      "type": "nominal",
+      "scale": {
+        "range": ["#2E6F95", "#E69F00"]
+      },
+      "title": ""
+    },
+
+    "tooltip": [
+      {
+        "field": "State",
+        "type": "nominal"
+      },
+      {
+        "field": "Indicator",
+        "type": "nominal"
+      },
+      {
+        "field": "Value",
+        "type": "quantitative",
+        "format": ".1f",
+        "title": "Value per 1,000 people"
+      }
+    ]
+  },
+
+  "config": {
+    "background": "#ffffff",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "labelFontSize": 12,
+      "titleFontSize": 13,
+      "gridColor": "#eeeeee"
+    },
+    "legend": {
+      "orient": "top",
+      "labelFontSize": 12
+    }
+  }
+}

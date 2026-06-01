@@ -1,0 +1,144 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+
+  "width": 720,
+  "height": 320,
+
+  "title": {
+    "text": "Cost of Living Pressure Across Australian States",
+    "subtitle": "Australia average = 100",
+    "fontSize": 22,
+    "subtitleFontSize": 14,
+    "anchor": "start"
+  },
+
+  "data": {
+    "url": "../data/state_data.csv"
+  },
+
+  "transform": [
+    {
+      "filter": "datum.State != 'Other Territories'"
+    },
+
+    {
+      "calculate": "toNumber(datum['Cost of living index (Australia=100)'])",
+      "as": "CostIndex"
+    },
+
+    {
+      "filter": "isValid(datum.CostIndex)"
+    }
+  ],
+
+  "layer": [
+    {
+      "mark": {
+        "type": "rule",
+        "strokeDash": [5, 5],
+        "color": "#888",
+        "strokeWidth": 2
+      },
+
+      "encoding": {
+        "x": {
+          "datum": 100,
+          "type": "quantitative"
+        }
+      }
+    },
+
+    {
+      "mark": {
+        "type": "bar",
+        "cornerRadiusEnd": 4
+      },
+
+      "encoding": {
+        "y": {
+          "field": "State",
+          "type": "nominal",
+          "title": "",
+          "sort": {
+            "field": "CostIndex",
+            "order": "descending"
+          }
+        },
+
+        "x": {
+          "field": "CostIndex",
+          "type": "quantitative",
+          "title": "Cost of Living Index",
+          "scale": {
+            "domain": [70, 125]
+          }
+        },
+
+        "color": {
+          "value:": "#E67E22"
+        },
+
+        "tooltip": [
+          {
+            "field": "State",
+            "type": "nominal"
+          },
+          {
+            "field": "CostIndex",
+            "type": "quantitative",
+            "title": "Cost of Living Index",
+            "format": ".1f"
+          }
+        ]
+      }
+    },
+
+    {
+      "mark": {
+        "type": "text",
+        "align": "left",
+        "dx": 8,
+        "fontSize": 11,
+        "color": "#333"
+      },
+
+      "encoding": {
+        "y": {
+          "field": "State",
+          "type": "nominal",
+          "sort": {
+            "field": "CostIndex",
+            "order": "descending"
+          }
+        },
+
+        "x": {
+          "field": "CostIndex",
+          "type": "quantitative"
+        },
+
+        "text": {
+          "field": "CostIndex",
+          "type": "quantitative",
+          "format": ".1f"
+        }
+      }
+    }
+  ],
+
+  "config": {
+    "background": "#ffffff",
+
+    "view": {
+      "stroke": null
+    },
+
+    "axis": {
+      "labelFontSize": 12,
+      "titleFontSize": 13,
+      "gridColor": "#eeeeee",
+      "domainColor": "#aaaaaa",
+      "tickColor": "#aaaaaa"
+    }
+  }
+}

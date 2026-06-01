@@ -1,0 +1,199 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 800,
+  "height": 400,
+
+  "title": {
+    "text": "Income vs House Prices Across Australian States",
+    "subtitle": "Higher income does not always mean better housing affordability",
+    "fontSize": 22,
+    "subtitleFontSize": 14,
+    "anchor": "start"
+  },
+
+  "data": {
+    "url": "../data/state_data.csv"
+  },
+
+  "transform": [
+    {
+      "calculate": "toNumber(replace(datum['Median total income ($)'], /[$,]/g, ''))",
+      "as": "Income"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Median house price ($)'], /[$,]/g, ''))",
+      "as": "HousePrice"
+    },
+    {
+      "calculate": "toNumber(datum['Cost of living index (Australia=100)'])",
+      "as": "CostIndex"
+    },
+    {
+      "filter": "datum.State != 'Other Territories' && isValid(datum.Income) && isValid(datum.HousePrice)"
+    }
+  ],
+
+  "layer": [
+    {
+      "mark": {
+        "type": "circle",
+        "size": 220,
+        "opacity": 0.85,
+        "stroke": "#ffffff",
+        "strokeWidth": 1.5
+      },
+      "encoding": {
+        "x": {
+          "field": "Income",
+          "type": "quantitative",
+          "title": "Median total income ($)",
+          "axis": {
+            "format": "$,.0f"
+          },
+          "scale": {
+            "domain": [48000, 75000]
+          }
+        },
+        "y": {
+          "field": "HousePrice",
+          "type": "quantitative",
+          "title": "Median house price ($)",
+          "axis": {
+            "format": "$,.0f"
+          },
+          "scale": {
+            "domain": [500000, 1050000]
+          }
+        },
+        "color": {
+          "field": "CostIndex",
+          "type": "quantitative",
+          "title": "Cost of Living Index",
+          "scale": {
+            "scheme": "oranges"
+          }
+        },
+        "tooltip": [
+          {
+            "field": "State",
+            "type": "nominal",
+            "title": "State"
+          },
+          {
+            "field": "Income",
+            "type": "quantitative",
+            "title": "Median Income",
+            "format": "$,.0f"
+          },
+          {
+            "field": "HousePrice",
+            "type": "quantitative",
+            "title": "Median House Price",
+            "format": "$,.0f"
+          },
+          {
+            "field": "CostIndex",
+            "type": "quantitative",
+            "title": "Cost of Living Index"
+          }
+        ]
+      }
+    },
+
+    {
+      "data": {
+        "values": [
+          {
+            "x1": 66800,
+            "y1": 630000,
+            "x2": 65301,
+            "y2": 560000
+          }
+        ]
+      },
+      "mark": {
+        "type": "rule",
+        "color": "#444444",
+        "strokeWidth": 2
+      },
+      "encoding": {
+        "x": {
+          "field": "x1",
+          "type": "quantitative",
+          "scale": {
+            "domain": [48000, 75000]
+          }
+        },
+        "y": {
+          "field": "y1",
+          "type": "quantitative",
+          "scale": {
+            "domain": [500000, 1050000]
+          }
+        },
+        "x2": {
+          "field": "x2"
+        },
+        "y2": {
+          "field": "y2"
+        }
+      }
+    },
+
+    {
+      "data": {
+        "values": [
+          {
+            "x": 66850,
+            "y": 640000,
+            "label": "North Territory is ideal from the prespective of Housing"
+          }
+        ]
+      },
+      "mark": {
+        "type": "text",
+        "align": "left",
+        "fontSize": 12,
+        "fontWeight": "bold",
+        "color": "#444444"
+      },
+      "encoding": {
+        "x": {
+          "field": "x",
+          "type": "quantitative",
+          "scale": {
+            "domain": [48000, 75000]
+          }
+        },
+        "y": {
+          "field": "y",
+          "type": "quantitative",
+          "scale": {
+            "domain": [500000, 1050000]
+          }
+        },
+        "text": {
+          "field": "label"
+        }
+      }
+    }
+  ],
+
+  "config": {
+    "background": "#ffffff",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "labelFontSize": 12,
+      "titleFontSize": 13,
+      "gridColor": "#eeeeee",
+      "domainColor": "#aaaaaa",
+      "tickColor": "#aaaaaa"
+    },
+    "legend": {
+      "labelFontSize": 11,
+      "titleFontSize": 12
+    }
+  }
+}

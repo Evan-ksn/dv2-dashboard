@@ -1,0 +1,167 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 700,
+  "height": 330,
+
+  "title": {
+    "text": "Opportunity Profile Across Australian States",
+    "subtitle": "Darker colour shows stronger opportunity score within each indicator",
+    "fontSize": 22,
+    "subtitleFontSize": 14,
+    "anchor": "start"
+  },
+
+  "data": {
+    "url": "../data/state_data.csv"
+  },
+
+  "transform": [
+    {
+      "filter": "datum.State != 'Other Territories'"
+    },
+
+    {
+      "calculate": "toNumber(replace(replace(datum['Average weekly earnings ($)'], '$', ''), ',', ''))",
+      "as": "Earnings"
+    },
+    {
+      "calculate": "100 - toNumber(datum['Unemployment rate (%)'])",
+      "as": "Employment Strength"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Population'], /,/g, ''))",
+      "as": "PopulationClean"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Number of jobs'], /,/g, ''))",
+      "as": "JobsClean"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Total businesses'], /,/g, ''))",
+      "as": "BusinessesClean"
+    },
+    {
+      "calculate": "datum.JobsClean / datum.PopulationClean * 1000",
+      "as": "Jobs per 1000"
+    },
+    {
+      "calculate": "datum.BusinessesClean / datum.PopulationClean * 1000",
+      "as": "Businesses per 1000"
+    },
+    {
+      "calculate": "toNumber(datum['Working age population (%)'])",
+      "as": "Working Age Share"
+    },
+
+    {
+      "fold": [
+        "Earnings",
+        "Employment Strength",
+        "Jobs per 1000",
+        "Businesses per 1000",
+        "Working Age Share"
+      ],
+      "as": ["Indicator", "RawValue"]
+    },
+
+    {
+      "joinaggregate": [
+        {
+          "op": "min",
+          "field": "RawValue",
+          "as": "MinValue"
+        },
+        {
+          "op": "max",
+          "field": "RawValue",
+          "as": "MaxValue"
+        }
+      ],
+      "groupby": ["Indicator"]
+    },
+
+    {
+      "calculate": "(datum.RawValue - datum.MinValue) / (datum.MaxValue - datum.MinValue) * 100",
+      "as": "Opportunity Score"
+    }
+  ],
+
+  "mark": {
+    "type": "rect",
+    "stroke": "white",
+    "strokeWidth": 1.5
+  },
+
+  "encoding": {
+    "y": {
+      "field": "State",
+      "type": "nominal",
+      "title": "",
+      "sort": {
+        "field": "Opportunity Score",
+        "op": "mean",
+        "order": "descending"
+      }
+    },
+
+    "x": {
+      "field": "Indicator",
+      "type": "nominal",
+      "title": "",
+      "axis": {
+        "labelAngle": -25
+      }
+    },
+
+    "color": {
+      "field": "Opportunity Score",
+      "type": "quantitative",
+      "title": "Normalised score",
+      "scale": {
+        "scheme": "blues",
+        "domain": [0, 100]
+      }
+    },
+
+    "tooltip": [
+      {
+        "field": "State",
+        "type": "nominal",
+        "title": "State"
+      },
+      {
+        "field": "Indicator",
+        "type": "nominal",
+        "title": "Indicator"
+      },
+      {
+        "field": "RawValue",
+        "type": "quantitative",
+        "title": "Original value",
+        "format": ".1f"
+      },
+      {
+        "field": "Opportunity Score",
+        "type": "quantitative",
+        "title": "Normalised score",
+        "format": ".1f"
+      }
+    ]
+  },
+
+  "config": {
+    "background": "#ffffff",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "labelFontSize": 12,
+      "titleFontSize": 13,
+      "grid": false
+    },
+    "legend": {
+      "labelFontSize": 11,
+      "titleFontSize": 12
+    }
+  }
+}

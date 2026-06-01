@@ -1,0 +1,168 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 780,
+  "height": 360,
+
+  "title": {
+    "text": "Rent vs Mortgage Pressure Across Australian States",
+    "subtitle": "Mortgage payments are converted from monthly to weekly values",
+    "fontSize": 22,
+    "subtitleFontSize": 14,
+    "anchor": "start"
+  },
+
+  "data": {
+    "url": "../data/state_data.csv"
+  },
+
+  "transform": [
+    {
+      "filter": "datum.State != 'Other Territories'"
+    },
+    {
+      "calculate": "toNumber(replace(replace(datum['Median weekly rent ($)'], '$', ''), ',', ''))",
+      "as": "WeeklyRent"
+    },
+    {
+      "calculate": "toNumber(replace(replace(datum['Median monthly mortgage ($)'], '$', ''), ',', ''))",
+      "as": "MonthlyMortgage"
+    },
+    {
+      "calculate": "datum.MonthlyMortgage * 12 / 52",
+      "as": "WeeklyMortgage"
+    },
+    {
+      "calculate": "datum.WeeklyMortgage - datum.WeeklyRent",
+      "as": "Gap"
+    }
+  ],
+
+  "layer": [
+    {
+      "mark": {
+        "type": "rule",
+        "strokeWidth": 3,
+        "color": "#bdbdbd"
+      },
+      "encoding": {
+        "y": {
+          "field": "State",
+          "type": "nominal",
+          "title": "",
+          "sort": {
+            "field": "Gap",
+            "order": "descending"
+          }
+        },
+        "x": {
+          "field": "WeeklyRent",
+          "type": "quantitative",
+          "title": "Weekly housing cost ($)",
+          "scale": {
+            "domain": [250, 520]
+          },
+          "axis": {
+            "format": "$,.0f"
+          }
+        },
+        "x2": {
+          "field": "WeeklyMortgage"
+        },
+        "tooltip": [
+          {
+            "field": "State",
+            "type": "nominal"
+          },
+          {
+            "field": "WeeklyRent",
+            "type": "quantitative",
+            "title": "Weekly Rent",
+            "format": "$,.0f"
+          },
+          {
+            "field": "WeeklyMortgage",
+            "type": "quantitative",
+            "title": "Weekly Mortgage",
+            "format": "$,.0f"
+          },
+          {
+            "field": "Gap",
+            "type": "quantitative",
+            "title": "Mortgage - Rent Gap",
+            "format": "$,.0f"
+          }
+        ]
+      }
+    },
+
+    {
+    "transform": [
+        {
+         "fold": ["WeeklyRent", "WeeklyMortgage"],
+         "as": ["Housing Type", "Weekly Cost"]
+        },
+        {
+         "calculate": "datum['Housing Type'] == 'WeeklyRent' ? 'Weekly Rent' : 'Weekly Mortgage'",
+         "as": "Housing Label"
+        }
+    ],
+    "mark": {
+        "type": "circle",
+        "size": 160,
+        "opacity": 0.95
+    },
+    "encoding": {
+        "y": {
+            "field": "State",
+            "type": "nominal",
+            "title": "",
+            "sort": {
+                "field": "Gap",
+                "order": "descending"
+            }
+        },
+        "x": {
+            "field": "Weekly Cost",
+            "type": "quantitative",
+            "title": "Weekly housing cost ($)"
+        },
+        "color": {
+            "field": "Housing Label",
+            "type": "nominal",
+            "title": "",
+            "scale": {
+                "domain": ["Weekly Rent", "Weekly Mortgage"],
+                "range": ["#2E6F95", "#E69F00"]
+            },
+            "legend": {
+                "orient": "top"
+            }
+        },
+        "tooltip": [
+            {"field": "State", "type": "nominal"},
+            {"field": "Housing Label", "type": "nominal"},
+            {
+                "field": "Weekly Cost",
+                "type": "quantitative",
+                "title": "Weekly Cost",
+                "format": "$,.0f"
+            }
+            ]
+        }
+    }
+  ],
+
+  "config": {
+    "background": "#ffffff",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "labelFontSize": 12,
+      "titleFontSize": 13,
+      "gridColor": "#eeeeee",
+      "domainColor": "#aaaaaa",
+      "tickColor": "#aaaaaa"
+    }
+  }
+}

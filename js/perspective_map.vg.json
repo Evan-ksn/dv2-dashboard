@@ -1,0 +1,355 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 820,
+  "height": 520,
+
+  "title": {
+    "text": "Look at Australia From Your Perspective",
+    "subtitle": "Select a perspective to recolour the map",
+    "fontSize": 22,
+    "subtitleFontSize": 14,
+    "anchor": "start"
+  },
+
+  "params": [
+    {
+      "name": "Perspective",
+      "value": "Overall Balance",
+      "bind": {
+        "input": "select",
+        "options": [
+          "Opportunity",
+          "Affordability",
+          "Cost Pressure",
+          "Lifestyle",
+          "Overall Balance"
+        ],
+        "name": "Perspective lens:"
+      }
+    }
+  ],
+
+  "data": {
+    "url": "../data/australia.json",
+    "format": {
+      "type": "topojson",
+      "feature": "australia"
+    }
+  },
+
+  "projection": {
+    "type": "mercator",
+    "center": [134, -28],
+    "scale": 700
+  },
+
+  "transform": [
+    {
+      "lookup": "properties.name",
+      "from": {
+        "data": {
+          "url": "../data/state_data.csv"
+        },
+        "key": "State",
+        "fields": [
+          "Population",
+          "Average weekly earnings ($)",
+          "Unemployment rate (%)",
+          "Number of jobs",
+          "Total businesses",
+          "Median total income ($)",
+          "Median house price ($)",
+          "Median weekly rent ($)",
+          "Median monthly mortgage ($)",
+          "Cost of living index (Australia=100)",
+          "Land area (ha)",
+          "Protected land area (ha)"
+        ]
+      }
+    },
+
+    {
+      "calculate": "toNumber(replace(datum['Population'], /,/g, ''))",
+      "as": "PopulationClean"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Average weekly earnings ($)'], /[$,]/g, ''))",
+      "as": "Earnings"
+    },
+    {
+      "calculate": "toNumber(datum['Unemployment rate (%)'])",
+      "as": "Unemployment"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Number of jobs'], /,/g, ''))",
+      "as": "Jobs"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Total businesses'], /,/g, ''))",
+      "as": "Businesses"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Median total income ($)'], /[$,]/g, ''))",
+      "as": "Income"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Median house price ($)'], /[$,]/g, ''))",
+      "as": "HousePrice"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Median weekly rent ($)'], /[$,]/g, ''))",
+      "as": "WeeklyRent"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Median monthly mortgage ($)'], /[$,]/g, ''))",
+      "as": "MonthlyMortgage"
+    },
+    {
+      "calculate": "toNumber(datum['Cost of living index (Australia=100)'])",
+      "as": "CostIndex"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Land area (ha)'], /,/g, ''))",
+      "as": "LandArea"
+    },
+    {
+      "calculate": "toNumber(replace(datum['Protected land area (ha)'], /,/g, ''))",
+      "as": "ProtectedArea"
+    },
+
+    {
+      "calculate": "datum.Jobs / datum.PopulationClean * 1000",
+      "as": "JobsPer1000"
+    },
+    {
+      "calculate": "datum.Businesses / datum.PopulationClean * 1000",
+      "as": "BusinessesPer1000"
+    },
+    {
+      "calculate": "100 - datum.Unemployment",
+      "as": "EmploymentStrength"
+    },
+    {
+      "calculate": "datum.HousePrice / datum.Income",
+      "as": "HouseIncomeRatio"
+    },
+    {
+      "calculate": "datum.WeeklyRent / (datum.Income / 52)",
+      "as": "RentBurden"
+    },
+    {
+      "calculate": "datum.ProtectedArea / datum.LandArea * 100",
+      "as": "ProtectedPercent"
+    },
+    {
+      "calculate": "datum.PopulationClean / datum.LandArea",
+      "as": "PopulationDensity"
+    },
+
+    {
+      "filter": "isValid(datum.Earnings) && isValid(datum.JobsPer1000)"
+    },
+
+    {
+      "joinaggregate": [
+        { "op": "min", "field": "Earnings", "as": "MinEarnings" },
+        { "op": "max", "field": "Earnings", "as": "MaxEarnings" },
+
+        { "op": "min", "field": "JobsPer1000", "as": "MinJobs" },
+        { "op": "max", "field": "JobsPer1000", "as": "MaxJobs" },
+
+        { "op": "min", "field": "BusinessesPer1000", "as": "MinBusiness" },
+        { "op": "max", "field": "BusinessesPer1000", "as": "MaxBusiness" },
+
+        { "op": "min", "field": "EmploymentStrength", "as": "MinEmployment" },
+        { "op": "max", "field": "EmploymentStrength", "as": "MaxEmployment" },
+
+        { "op": "min", "field": "HouseIncomeRatio", "as": "MinHouseRatio" },
+        { "op": "max", "field": "HouseIncomeRatio", "as": "MaxHouseRatio" },
+
+        { "op": "min", "field": "RentBurden", "as": "MinRent" },
+        { "op": "max", "field": "RentBurden", "as": "MaxRent" },
+
+        { "op": "min", "field": "CostIndex", "as": "MinCost" },
+        { "op": "max", "field": "CostIndex", "as": "MaxCost" },
+
+        { "op": "min", "field": "ProtectedPercent", "as": "MinProtected" },
+        { "op": "max", "field": "ProtectedPercent", "as": "MaxProtected" },
+
+        { "op": "min", "field": "PopulationDensity", "as": "MinDensity" },
+        { "op": "max", "field": "PopulationDensity", "as": "MaxDensity" }
+      ]
+    },
+
+    {
+      "calculate": "(datum.Earnings - datum.MinEarnings) / (datum.MaxEarnings - datum.MinEarnings) * 100",
+      "as": "EarningsScore"
+    },
+    {
+      "calculate": "(datum.JobsPer1000 - datum.MinJobs) / (datum.MaxJobs - datum.MinJobs) * 100",
+      "as": "JobsScore"
+    },
+    {
+      "calculate": "(datum.BusinessesPer1000 - datum.MinBusiness) / (datum.MaxBusiness - datum.MinBusiness) * 100",
+      "as": "BusinessScore"
+    },
+    {
+      "calculate": "(datum.EmploymentStrength - datum.MinEmployment) / (datum.MaxEmployment - datum.MinEmployment) * 100",
+      "as": "EmploymentScore"
+    },
+
+    {
+      "calculate": "(datum.EarningsScore + datum.JobsScore + datum.BusinessScore + datum.EmploymentScore) / 4",
+      "as": "OpportunityScore"
+    },
+
+    {
+      "calculate": "100 - ((datum.HouseIncomeRatio - datum.MinHouseRatio) / (datum.MaxHouseRatio - datum.MinHouseRatio) * 100)",
+      "as": "HouseAffordScore"
+    },
+    {
+      "calculate": "100 - ((datum.RentBurden - datum.MinRent) / (datum.MaxRent - datum.MinRent) * 100)",
+      "as": "RentAffordScore"
+    },
+    {
+      "calculate": "100 - ((datum.CostIndex - datum.MinCost) / (datum.MaxCost - datum.MinCost) * 100)",
+      "as": "CostAffordScore"
+    },
+
+    {
+      "calculate": "(datum.HouseAffordScore + datum.RentAffordScore + datum.CostAffordScore) / 3",
+      "as": "AffordabilityScore"
+    },
+
+    {
+      "calculate": "(datum.ProtectedPercent - datum.MinProtected) / (datum.MaxProtected - datum.MinProtected) * 100",
+      "as": "ProtectedScore"
+    },
+    {
+      "calculate": "100 - ((datum.PopulationDensity - datum.MinDensity) / (datum.MaxDensity - datum.MinDensity) * 100)",
+      "as": "LowDensityScore"
+    },
+    {
+      "calculate": "(datum.ProtectedScore + datum.LowDensityScore) / 2",
+      "as": "LifestyleScore"
+    },
+
+    {
+      "calculate": "(datum.OpportunityScore + datum.AffordabilityScore + datum.LifestyleScore) / 3",
+      "as": "OverallScore"
+    },
+
+    {
+      "calculate": "Perspective == 'Opportunity' ? datum.OpportunityScore : Perspective == 'Affordability' ? datum.AffordabilityScore : Perspective == 'Cost Pressure' ? 100 - datum.AffordabilityScore : Perspective == 'Lifestyle' ? datum.LifestyleScore : datum.OverallScore",
+      "as": "SelectedScore"
+    },
+
+    {
+      "calculate":
+        "datum.properties.name == 'New South Wales' ? 'NSW' : datum.properties.name == 'Victoria' ? 'VIC' : datum.properties.name == 'Queensland' ? 'QLD' : datum.properties.name == 'Western Australia' ? 'WA' : datum.properties.name == 'South Australia' ? 'SA' : datum.properties.name == 'Tasmania' ? 'TAS' : datum.properties.name == 'Northern Territory' ? 'NT' : datum.properties.name == 'Australian Capital Territory' ? 'ACT' : ''",
+      "as": "StateLabel"
+    },
+
+    {
+      "calculate":
+        "datum.properties.name == 'Western Australia' ? 122 : datum.properties.name == 'Northern Territory' ? 133 : datum.properties.name == 'South Australia' ? 135 : datum.properties.name == 'Queensland' ? 145 : datum.properties.name == 'New South Wales' ? 147 : datum.properties.name == 'Victoria' ? 144 : datum.properties.name == 'Tasmania' ? 147 : datum.properties.name == 'Australian Capital Territory' ? 149 : 135",
+      "as": "LabelLon"
+    },
+
+    {
+      "calculate":
+        "datum.properties.name == 'Western Australia' ? -25 : datum.properties.name == 'Northern Territory' ? -19 : datum.properties.name == 'South Australia' ? -30 : datum.properties.name == 'Queensland' ? -22 : datum.properties.name == 'New South Wales' ? -33 : datum.properties.name == 'Victoria' ? -37 : datum.properties.name == 'Tasmania' ? -42 : datum.properties.name == 'Australian Capital Territory' ? -35.5 : -25",
+      "as": "LabelLat"
+    }
+  ],
+
+  "layer": [
+    {
+      "mark": {
+        "type": "geoshape",
+        "stroke": "white",
+        "strokeWidth": 1.2
+      },
+
+      "encoding": {
+        "color": {
+          "field": "SelectedScore",
+          "type": "quantitative",
+          "title": "Score",
+          "scale": {
+            "scheme": "tealblues",
+            "domain": [0, 100]
+          }
+        },
+
+        "tooltip": [
+          {
+            "field": "properties.name",
+            "type": "nominal",
+            "title": "State"
+          },
+          {
+            "field": "SelectedScore",
+            "type": "quantitative",
+            "title": "Selected perspective score",
+            "format": ".1f"
+          },
+          {
+            "field": "OpportunityScore",
+            "type": "quantitative",
+            "title": "Opportunity score",
+            "format": ".1f"
+          },
+          {
+            "field": "AffordabilityScore",
+            "type": "quantitative",
+            "title": "Affordability score",
+            "format": ".1f"
+          },
+          {
+            "field": "LifestyleScore",
+            "type": "quantitative",
+            "title": "Lifestyle score",
+            "format": ".1f"
+          }
+        ]
+      }
+    },
+
+    {
+      "mark": {
+        "type": "text",
+        "fontSize": 14,
+        "fontWeight": "bold",
+        "color": "#ffffff"
+      },
+
+      "encoding": {
+        "longitude": {
+          "field": "LabelLon",
+          "type": "quantitative"
+        },
+
+        "latitude": {
+          "field": "LabelLat",
+          "type": "quantitative"
+        },
+
+        "text": {
+          "field": "StateLabel"
+        }
+      }
+    }
+  ],
+
+  "config": {
+    "background": "#ffffff",
+    "view": {
+      "stroke": null
+    },
+    "legend": {
+      "labelFontSize": 11,
+      "titleFontSize": 12
+    }
+  }
+}

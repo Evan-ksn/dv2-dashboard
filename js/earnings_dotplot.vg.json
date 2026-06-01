@@ -1,0 +1,156 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 700,
+  "height": 360,
+
+  "title": {
+    "text": "Average Weekly Earnings Across Australian States",
+    "subtitle": "Dashed line shows the Australian average ($1,923/week)",
+    "fontSize": 22,
+    "subtitleFontSize": 14,
+    "anchor": "start"
+  },
+
+  "data": {
+    "url": "../data/state_data.csv"
+  },
+
+  "transform": [
+    {
+      "calculate": "toNumber(replace(replace(datum['Average weekly earnings ($)'], '$', ''), ',', ''))",
+      "as": "Earnings"
+    },
+    {
+      "filter": "datum.State != 'Other Territories' && isValid(datum.Earnings)"
+    }
+  ],
+
+  "layer": [
+    {
+      "mark": {
+        "type": "rule",
+        "color": "#D95F02",
+        "strokeDash": [6, 4],
+        "strokeWidth": 2
+      },
+      "encoding": {
+        "x": {
+          "datum": 1923.4,
+          "type": "quantitative",
+          "scale": { "domain": [1500, 2250] },
+          "title": "Average weekly earnings ($)"
+        }
+      }
+    },
+
+    {
+      "mark": {
+        "type": "text",
+        "align": "left",
+        "dx": 3,
+        "dy": -50,
+        "fontSize": 13,
+        "fontWeight": "bold",
+        "color": "#D95F02"
+      },
+      "encoding": {
+        "x": {
+          "datum": 1923.4,
+          "type": "quantitative",
+          "scale": { "domain": [1500, 2250] }
+        },
+        "y": {
+          "datum": "Western Australia",
+          "type": "nominal"
+        },
+        "text": {
+          "value": "Australian average"
+        }
+      }
+    },
+
+    {
+      "mark": {
+        "type": "circle",
+        "size": 190,
+        "opacity": 0.95
+      },
+      "encoding": {
+        "y": {
+          "field": "State",
+          "type": "nominal",
+          "sort": {
+            "field": "Earnings",
+            "order": "descending"
+          },
+          "title": ""
+        },
+        "x": {
+          "field": "Earnings",
+          "type": "quantitative",
+          "scale": { "domain": [1500, 2250] },
+          "title": "Average weekly earnings ($)"
+        },
+        "color": {
+          "condition": {
+            "test": "datum.Earnings > 1923.4",
+            "value": "#2E6F95"
+          },
+          "value": "#A8C6D8"
+        },
+        "tooltip": [
+          { "field": "State", "type": "nominal", "title": "State" },
+          {
+            "field": "Earnings",
+            "type": "quantitative",
+            "title": "Average Weekly Earnings",
+            "format": "$,.0f"
+          }
+        ]
+      }
+    },
+
+    {
+      "mark": {
+        "type": "text",
+        "align": "left",
+        "dx": 10,
+        "fontSize": 12,
+        "color": "#333"
+      },
+      "encoding": {
+        "y": {
+          "field": "State",
+          "type": "nominal",
+          "sort": {
+            "field": "Earnings",
+            "order": "descending"
+          },
+          "title": ""
+        },
+        "x": {
+          "field": "Earnings",
+          "type": "quantitative",
+          "scale": { "domain": [1500, 2250] }
+        },
+        "text": {
+          "field": "Earnings",
+          "type": "quantitative",
+          "format": "$,.0f"
+        }
+      }
+    }
+  ],
+
+  "config": {
+    "background": "#ffffff",
+    "view": { "stroke": null },
+    "axis": {
+      "labelFontSize": 12,
+      "titleFontSize": 13,
+      "gridColor": "#eeeeee",
+      "domainColor": "#aaaaaa",
+      "tickColor": "#aaaaaa"
+    }
+  }
+}
